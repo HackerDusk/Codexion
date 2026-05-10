@@ -1,41 +1,52 @@
-#include "codexion.h"
+# include "codexion.h"
+# include <unistd.h>
 
-int compteur = 0;
-
-void    *incrementer(void *arg)
+int is_positive_int(char *str)
 {
-    t_data *data = (t_data *)arg;
-    int i = 0;
-    while (i < 100000)
+    if (!str || !*str)
+        return (0);
+    if (*str == '0' && *(str + 1) == '\0')
+        return (0);
+    while (*str)
     {
-        pthread_mutex_lock(data->mutex);
-        compteur++;
-        pthread_mutex_unlock(data->mutex);
-        i++;
+        if (*str < '0' || *str > '9')
+            return (0);
+        str++;
     }
-    return (NULL);
+    return (1);
 }
 
-int main(void)
+int check_args(char **argc)
 {
-    pthread_t   t[3];
-    pthread_mutex_t mutex;
-    t_data  data;
-    data.mutex = &mutex;
-    int         i = 0;
-    pthread_mutex_init(&mutex, NULL);
-    while (i < 3)
+    int i;
+    i = 1;
+    while (*(argc + i) && i < 8)
     {
-        pthread_create(&t[i], NULL, incrementer, &data);
+        if (!is_positive_int(*(argc + i)))
+        {
+            write (2, "Error: top 7 arguments must be an integer\n", 42);
+            return (0);
+        }
         i++;
     }
-    i = 0;
-    while (i < 3)
+    int fifo = !strcmp(argc[i], "fifo");
+    int edf =  !strcmp(argc[i], "edf");
+    if (!edf && !fifo)
     {
-        pthread_join(t[i], NULL);
-        i++;
+        write (2, "Error: 8th argument must be 'fifo' or 'edf'.\n", 44);
+        return (0);
     }
-    pthread_mutex_destroy(&mutex);
-    printf("Résultat : %d\n", compteur);
+    return (1);
+}
+
+int main(int argc, char  **argv)
+{
+    if (argc != 9)
+    {
+        printf("Error: Got %d/9 arguments \n", argc);
+        return (1);
+    }
+    if (!check_args(argv))
+        return (1);
     return (0);
 }
