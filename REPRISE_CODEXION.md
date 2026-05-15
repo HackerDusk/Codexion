@@ -1,12 +1,4 @@
 ```txt
-juste pour economiser les token est ce que tu peux me faire un prompt complet de ma situation maintenant, tout , instruction que j'ai donne, ma methode, l'avance du projet , architecure, TOUUUT ce que tu sais ca fair rien envois un .md car il nous faut une nouvelle conversation bro, please aide moi, je sais pas si c'est la bonne methode mais bon voila quoi
-==========================
-Voici mon fichier de reprise. Lis-le entièrement et reprends exactement là où on s'est arrêtés, avec la même méthode pédagogique.
-==========================
-Oui, envoie les trois dans la nouvelle conversation :
-REPRISE_CODEXION.md — le fichier qu'on vient de créer
-en_subject__1_.pdf — le sujet original
-Ton code actuel — colle le contenu de main.c, init.c, utils.c, codexion.h
 ```
 # Reprise — Apprentissage Codexion (42 Antananarivo)
 
@@ -246,3 +238,5 @@ Casser la circularité de l'attente = casser le deadlock.
 - Le `log_mutex` dans `t_sim` doit être initialisé dans `init_sim`
 - `last_compile_time` doit être initialisé à `start_time` (pas 0) pour que le premier burnout soit correctement calculé
 - Compiler avec : `cc -Wall -Wextra -Werror -pthread`
+
+"Si cette conversation devient trop longue, génère automatiquement un nouveau fichier REPRISE_CODEXION_V2.md avec tout le contexte mis à jour."
