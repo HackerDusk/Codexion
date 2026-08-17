@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/11 11:26:12 by srandro           #+#    #+#             */
-/*   Updated: 2026/05/11 16:13:16 by srandro          ###   ########.fr       */
+/*   Updated: 2026/08/18 01:01:08 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,31 +56,9 @@ void	*routine(void *args)
 	return (NULL);
 }
 
-static int	launch_threads(t_sim *sim, pthread_t *threads)
-{
-	int	i;
-
-	i = 0;
-	while (i < sim->params.number_of_coders)
-	{
-		pthread_create(&threads[i], NULL, routine, &sim->coders[i]);
-		i++;
-	}
-	i = 0;
-	while (i < sim->params.number_of_coders)
-	{
-		pthread_join(threads[i], NULL);
-		i++;
-	}
-	return (0);
-}
 
 int	main(int argc, char **argv)
 {
-	struct timeval	start;
-	pthread_t		*threads;
-	t_sim			sim;
-
 	if (argc != 9)
 	{
 		printf("Error: Got %d/9 arguments \n", argc);
@@ -88,16 +66,4 @@ int	main(int argc, char **argv)
 	}
 	if (!check_args(argv))
 		return (1);
-	if (!setup(&sim, &threads, argv))
-	{
-		if (!sim.dongles || !sim.coders)
-			free_sim(&sim);
-		return (1);
-	}
-	gettimeofday(&start, NULL);
-	sim.start_time = start.tv_sec * 1000 + start.tv_usec / 1000;
-	launch_threads(&sim, threads);
-	free(threads);
-	free_sim(&sim);
-	return (0);
 }
