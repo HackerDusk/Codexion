@@ -1,8 +1,0 @@
-Voici mon README (ma méthode d'apprentissage) et mon PLAN_Codexion.md
-(feuille de route du projet Codexion, 42 Antananarivo).
-
-On en est au Jour X : [nom de la brique, ex. "condition variables"].
-Suis le plan pour ce jour précis, applique strictement ma méthode
-(problème → modèle mental → simulation à la main → français →
-implémentation → test → critique). Ne me donne pas la solution
-directement, guide-moi étape par étape.
