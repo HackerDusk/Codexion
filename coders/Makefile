@@ -1,11 +1,11 @@
 NAME = codexion
 
-SRCS = main.c init.c utils.c
+SRCS = main.c argument_checker.c
 OBJS = $(SRCS:.c=.o)
 
 CC = cc
 FLAGS = -Wall -Wextra -Werror
-RM = rm -rf
+RM = rm -f
 
 %.o: %.c
 	$(CC) $(FLAGS) -c $< -o $@
