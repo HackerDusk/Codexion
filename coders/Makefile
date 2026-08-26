@@ -1,6 +1,7 @@
 NAME = codexion
 
-SRCS = main.c argument_checker.c
+SRCS = main.c argument_checker.c init.c \
+		
 OBJS = $(SRCS:.c=.o)
 
 CC = cc
