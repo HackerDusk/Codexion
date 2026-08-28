@@ -10,27 +10,27 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "codexion.h"
+#include "codexion.h"
 
-static int dongle_initializer(t_monitor *monitor, char **argv)
+static int	dongle_initializer(t_monitor *monitor, char **argv)
 {
-	int i;
-    int id;
+	int	i;
+	int	id;
 
-    monitor->dongles = malloc(sizeof(t_dongle) * (monitor->nb_coders));
+	monitor->dongles = malloc(sizeof(t_dongle) * (monitor->nb_coders));
 	if (!monitor->dongles)
 		return (0);
 	i = 0;
-    id = 1;
+	id = 1;
 	while (i < monitor->nb_coders)
 	{
 		monitor->dongles[i].id = id;
 		monitor->dongles[i].is_free = 1;
 		monitor->dongles[i].dongle_cooldown = atoi(argv[7]);
 		pthread_mutex_init(&monitor->dongles[i].mutex, NULL);
-		pthread_cond_init(&monitor->dongles->cond, NULL);
+		pthread_cond_init(&monitor->dongles[i].dongle_cond, NULL);
 		i++;
-        id++;
+		id++;
 	}
 	return (1);
 }
@@ -55,6 +55,8 @@ static int	coder_initializer(t_monitor *monitor, char	**argv)
 		monitor->coders[i].left_dongle = &monitor->dongles[i];
 		monitor->coders[i].right_dongle = &monitor->dongles[
 			(i + 1) % monitor->nb_coders];
+		monitor->coders[i].compliles_done = 0;
+		monitor->coders[i].curr_time_before_burnout = 0;
 		i++;
 	}
 	return (1);
@@ -73,7 +75,8 @@ t_monitor	*monitor_initializer(char **argv)
 	else if (!strcmp(argv[8], "edf"))
 		monitor->scheduler_type = 2;
 	monitor->stop_simulation = 0;
-	pthread_mutex_init(&monitor->sim_mutex, NULL);
+	pthread_cond_init(&monitor->monitor_cond, NULL);
+	pthread_mutex_init(&monitor->monitor_mutex, NULL);
 	if (!dongle_initializer(monitor, argv) || !coder_initializer(monitor, argv))
 	{
 		if (monitor->dongles)

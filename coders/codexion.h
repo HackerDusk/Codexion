@@ -21,6 +21,7 @@
 # include <limits.h>
 # include <sys/time.h>
 # include <errno.h>
+# include <stddef.h>
 
 typedef struct s_dongle
 {
@@ -28,7 +29,7 @@ typedef struct s_dongle
 	int				dongle_cooldown;
 	int				is_free;
 	pthread_mutex_t	mutex;
-	pthread_cond_t	cond;
+	pthread_cond_t	dongle_cond;
 }	t_dongle;
 
 typedef struct s_monitor	t_monitor;
@@ -45,19 +46,24 @@ typedef struct s_coder
 	int			time_to_debug;
 	int			time_to_refactor;
 	int			number_of_compiles_required;
+	int			compliles_done;
+	int			curr_time_before_burnout;
 }	t_coder;
 
 typedef struct s_monitor
 {
-	pthread_mutex_t	sim_mutex;
+	pthread_mutex_t	monitor_mutex;
 	t_dongle		*dongles;
 	t_coder			*coders;
 	int				nb_coders;
 	int				scheduler_type;
 	int				stop_simulation;
+	long long		start_time;
+	pthread_cond_t	monitor_cond;
+	pthread_t		monitor_thread;
 }	t_monitor;
 
-int	full_arg_checker(int argc, char **argv);
+int			full_arg_checker(int argc, char **argv);
 t_monitor	*monitor_initializer(char **argv);
 
 #endif
