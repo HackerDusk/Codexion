@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 13:59:09 by srandro           #+#    #+#             */
-/*   Updated: 2026/08/26 15:11:42 by srandro          ###   ########.fr       */
+/*   Updated: 2026/08/29 16:55:38 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ static int	dongle_initializer(t_monitor *monitor, char **argv)
 		monitor->dongles[i].id = id;
 		monitor->dongles[i].is_free = 1;
 		monitor->dongles[i].dongle_cooldown = atoi(argv[7]);
+		monitor->dongles[i].available_at = 0;
 		pthread_mutex_init(&monitor->dongles[i].mutex, NULL);
 		pthread_cond_init(&monitor->dongles[i].dongle_cond, NULL);
 		i++;
@@ -45,7 +46,7 @@ static int	coder_initializer(t_monitor *monitor, char	**argv)
 	i = 0;
 	while (i < monitor->nb_coders)
 	{
-		monitor->coders[i].id = i;
+		monitor->coders[i].id = i + 1;
 		monitor->coders[i].time_to_burnout = atoi(argv[2]);
 		monitor->coders[i].time_to_compile = atoi(argv[3]);
 		monitor->coders[i].time_to_debug = atoi(argv[4]);
@@ -55,8 +56,8 @@ static int	coder_initializer(t_monitor *monitor, char	**argv)
 		monitor->coders[i].left_dongle = &monitor->dongles[i];
 		monitor->coders[i].right_dongle = &monitor->dongles[
 			(i + 1) % monitor->nb_coders];
-		monitor->coders[i].compliles_done = 0;
-		monitor->coders[i].curr_time_before_burnout = 0;
+		monitor->coders[i].compiles_done = 0;
+		monitor->coders[i].last_compile_start = 0;
 		i++;
 	}
 	return (1);
@@ -77,6 +78,7 @@ t_monitor	*monitor_initializer(char **argv)
 	monitor->stop_simulation = 0;
 	pthread_cond_init(&monitor->monitor_cond, NULL);
 	pthread_mutex_init(&monitor->monitor_mutex, NULL);
+	pthread_mutex_init(&monitor->print_mutex, NULL);
 	if (!dongle_initializer(monitor, argv) || !coder_initializer(monitor, argv))
 	{
 		if (monitor->dongles)

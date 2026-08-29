@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 17:04:13 by srandro           #+#    #+#             */
-/*   Updated: 2026/08/26 14:59:56 by srandro          ###   ########.fr       */
+/*   Updated: 2026/08/29 14:43:14 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ typedef struct s_dongle
 	int				is_free;
 	pthread_mutex_t	mutex;
 	pthread_cond_t	dongle_cond;
+	long long		available_at;
+	
 }	t_dongle;
 
 typedef struct s_monitor	t_monitor;
@@ -46,21 +48,22 @@ typedef struct s_coder
 	int			time_to_debug;
 	int			time_to_refactor;
 	int			number_of_compiles_required;
-	int			compliles_done;
-	int			curr_time_before_burnout;
+	int			compiles_done;
+	long long	last_compile_start;
 }	t_coder;
 
 typedef struct s_monitor
 {
-	pthread_mutex_t	monitor_mutex;
-	t_dongle		*dongles;
-	t_coder			*coders;
-	int				nb_coders;
-	int				scheduler_type;
-	int				stop_simulation;
-	long long		start_time;
-	pthread_cond_t	monitor_cond;
-	pthread_t		monitor_thread;
+	pthread_mutex_t		monitor_mutex;
+	pthread_mutex_t		print_mutex;
+	t_dongle			*dongles;
+	t_coder				*coders;
+	int					nb_coders;
+	int					scheduler_type;
+	int					stop_simulation;
+	long long			start_time;
+	pthread_cond_t		monitor_cond;
+	pthread_t			monitor_thread;
 }	t_monitor;
 
 int			full_arg_checker(int argc, char **argv);
