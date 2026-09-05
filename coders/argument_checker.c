@@ -3,18 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   argument_checker.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
+/*   By: mandresy <mandresy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 19:54:45 by srandro           #+#    #+#             */
-/*   Updated: 2026/08/26 11:02:55 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/05 03:15:20 by mandresy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-static int	fifo_or_edf(char *s)
+static int	fifo_or_edf(char *str)
 {
-	return (strcmp(s, "fifo") != 0 && strcmp(s, "edf") != 0);
+	return (strcmp(str, "fifo") != 0 && strcmp(str, "edf") != 0);
 }
 
 static int	is_valid_positive_integer(char *str)
@@ -37,7 +37,21 @@ static int	is_valid_positive_integer(char *str)
 			return (0);
 		str++;
 	}
-	return (n > 0);
+	return (n >= 0);
+}
+
+static void	print_availble_args(int argc)
+{
+	fprintf(stderr, "Missing arguments, got only %d/8 args.\n", argc - 1);
+	fprintf(stderr, "Available arguments in this order:\n");
+	fprintf(stderr, "- number_of_coders\n");
+	fprintf(stderr, "- time_to_burnout\n");
+	fprintf(stderr, "- time_to_compile\n");
+	fprintf(stderr, "- time_to_debug\n");
+	fprintf(stderr, "- time_to_refactor\n");
+	fprintf(stderr, "- number_of_compiles_required\n");
+	fprintf(stderr, "- dongle_cooldown\n");
+	fprintf(stderr, "- scheduler\n");
 }
 
 int	full_arg_checker(int argc, char **argv)
@@ -46,7 +60,7 @@ int	full_arg_checker(int argc, char **argv)
 
 	if (argc != 9)
 	{
-		fprintf(stderr, "Missing arguments, got only %d/8 args.\n", argc - 1);
+		print_availble_args(argc);
 		return (0);
 	}
 	i = 1;
@@ -61,7 +75,7 @@ int	full_arg_checker(int argc, char **argv)
 	}
 	if (fifo_or_edf(argv[i]))
 	{
-		fprintf(stderr, "Scheduler must be exactly one of: fifo or edf.\n");
+		fprintf(stderr, "Scheduler must be exactly one of: \"fifo\" or \"edf\".\n");
 		return (0);
 	}
 	return (1);

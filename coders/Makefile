@@ -1,11 +1,15 @@
 NAME = codexion
 
-SRCS = main.c argument_checker.c init.c \
+SRCS =	main.c	argument_checker.c	init.c \
+		coder_routine.c	utils.c	time_tools.c \
+		deadlock_breaker.c	dongle_access.c	heap.c \
+		simulation_tools.c	scheduler.c	coder_actions.c
 		
+
 OBJS = $(SRCS:.c=.o)
 
 CC = cc
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror -pthread
 RM = rm -f
 
 %.o: %.c
@@ -19,7 +23,7 @@ $(NAME): $(OBJS)
 clean:
 	$(RM) $(OBJS)
 
-fclean: clean
+fclean:	clean
 	$(RM) $(NAME)
 
 re: fclean all
