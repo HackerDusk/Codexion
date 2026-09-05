@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   coder_actions.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/06 02:48:28 by srandro           #+#    #+#             */
+/*   Updated: 2026/09/06 02:48:29 by srandro          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 # include "codexion.h"
 
 long long	coder_is_compiling(t_coder *coder, long long debug_timestamp)

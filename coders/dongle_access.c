@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   dongle_access.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/06 02:48:44 by srandro           #+#    #+#             */
+/*   Updated: 2026/09/06 02:48:45 by srandro          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 # include "codexion.h"
 
 int	continue_after_first_dongle_access(t_coder *coder ,struct timespec ts)
