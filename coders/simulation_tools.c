@@ -6,11 +6,11 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 02:49:03 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/06 02:49:04 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/07 00:16:13 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "codexion.h"
+#include "codexion.h"
 
 int	is_simulation_stopped(t_monitor *monitor)
 {
@@ -29,7 +29,7 @@ void	set_simulation_stopped(t_monitor *monitor)
 	pthread_mutex_unlock(&monitor->stop_mutex);
 }
 
-int	keep_going_after_waiting(t_coder *coder)
+int	keep_going_after_waiting_turn(t_coder *coder)
 {
 	while (!coder->turn && !is_simulation_stopped(coder->monitor))
 		pthread_cond_wait(&coder->turn_cond, &coder->monitor->scheduler_mutex);

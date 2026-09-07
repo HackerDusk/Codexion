@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   argument_checker.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mandresy <mandresy@student.42.fr>          +#+  +:+       +#+        */
+/*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 19:54:45 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/05 03:15:20 by mandresy         ###   ########.fr       */
+/*   Updated: 2026/09/06 23:08:49 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
+#include <stdio.h>
 
 static int	fifo_or_edf(char *str)
 {
@@ -75,7 +76,8 @@ int	full_arg_checker(int argc, char **argv)
 	}
 	if (fifo_or_edf(argv[i]))
 	{
-		fprintf(stderr, "Scheduler must be exactly one of: \"fifo\" or \"edf\".\n");
+		fprintf(stderr, "Scheduler must be exactly one of:");
+		fprintf(stderr, " \"fifo\" or \"edf\".\n");
 		return (0);
 	}
 	return (1);

@@ -1,27 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   deadlock_breaker.c                                 :+:      :+:    :+:   */
+/*   coder_routine_simulator.c                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/06 02:48:38 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/06 23:22:06 by srandro          ###   ########.fr       */
+/*   Created: 2026/09/06 22:55:15 by srandro           #+#    #+#             */
+/*   Updated: 2026/09/06 23:14:19 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-void	coffman_circular_wait_breaker(t_coder *coder)
+void	coder_routine_simulator(t_monitor *monitor)
 {
-	if (coder->id % 2 == 0)
-	{
-		coder->first = coder->left_dongle;
-		coder->second = coder->right_dongle;
-	}
-	else
-	{
-		coder->first = coder->right_dongle;
-		coder->second = coder->left_dongle;
-	}
+	start_time_initializer(monitor);
+	thread_creator(monitor, coder_routine);
+	thread_joiner(monitor);
+	cond_mutex_destroyer(monitor);
+	free_models(monitor);
 }

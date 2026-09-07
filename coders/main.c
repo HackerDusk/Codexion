@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mandresy <mandresy@student.42.fr>          +#+  +:+       +#+        */
+/*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 17:03:49 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/05 00:57:03 by mandresy         ###   ########.fr       */
+/*   Updated: 2026/09/06 23:00:18 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,6 @@ int	main(int argc, char **argv)
 	monitor = monitor_initializer(argv);
 	if (!monitor)
 		return (1);
-	routine_simulator(monitor, coder_routine);
+	coder_routine_simulator(monitor);
 	return (0);
 }
