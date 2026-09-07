@@ -1,7 +1,3 @@
-intamax
-fifo
-edf
---tool
 edf en cas de last_compile_start égaux,
 on doit choisir le coder avec le plus grand
 Le cas du codeur unique

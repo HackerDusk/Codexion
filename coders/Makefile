@@ -18,6 +18,7 @@ RM = rm -f
 
 all: $(NAME)
 
+*This project has been created as part of the 42 curriculum by srandro*
 $(NAME): $(OBJS)
 	$(CC) $(FLAGS) $^ -o $@
 
