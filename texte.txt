@@ -1,3 +1,10 @@
+
+plus de int_max
+limite nb_coder
+heap
+usleep pair.
+
+
 edf en cas de last_compile_start égaux,
 on doit choisir le coder avec le plus grand
 Le cas du codeur unique

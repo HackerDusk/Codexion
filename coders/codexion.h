@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 17:04:13 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/06 23:21:05 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/07 14:25:24 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,20 +100,21 @@ void		book_a_slot(t_coder *coder);
 int			is_simulation_stopped(t_monitor *monitor);
 long long	get_time_ms(void);
 void		ms_to_timespec(long long time_in_ms, struct timespec *ts);
-int			keep_going_after_waiting_turn(t_coder *coder);
 void		coffman_circular_wait_breaker(t_coder *coder);
-int			continue_after_first_dongle_access(t_coder *coder,
-				struct timespec ts);
+int			continue_after_first_dongle_access(t_coder *coder);
+int			taking_first_dongle(t_coder *coder);
+int			keep_going_after_waiting_turn(t_coder *coder);
 int			one_coder_case(t_coder *coder);
-int			continue_after_second_dongle_access(t_coder *coder,
-				struct timespec ts);
-int			access_dongle(t_coder *coder, struct timespec ts);
+int			continue_after_second_dongle_access(t_coder *coder);
+int			taking_second_dongle(t_coder *coder);
+int			access_dongle(t_coder *coder);
 long long	coder_is_compiling(t_coder *coder, long long debug_timestamp);
 void		release_dongles(t_coder *coder);
 void		coder_is_debugging(t_coder *coder, long long debug_timestamp);
 void		coder_is_refactoring(t_coder *coder);
 void		*monitor_routine(void *arg);
 long long	get_closest_deadline(t_monitor *monitor);
+long long	change_curr_deadline(t_coder coder);
 int			is_real_burnout(t_monitor *monitor);
 int			is_routine_finished(t_monitor *monitor);
 void		wake_coders_up(t_monitor *monitor);

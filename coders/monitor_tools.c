@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 17:38:38 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/07 04:25:44 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/07 12:21:37 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,7 @@ long long	get_closest_deadline(t_monitor *monitor)
 			if (!found || curr_deadline
 				> (monitor->coders[i].last_compile_start
 					+ monitor->coders[i].time_to_burnout))
-			{
-				curr_deadline = (
-						monitor->coders[i].last_compile_start
-						+ monitor->coders[i].time_to_burnout);
-			}
+				curr_deadline = change_curr_deadline(monitor->coders[i]);
 			found = 1;
 		}
 		i++;
@@ -41,6 +37,19 @@ long long	get_closest_deadline(t_monitor *monitor)
 	if (!found)
 		return (get_time_ms());
 	return (curr_deadline);
+}
+
+static void	print_burnout_message(t_monitor *monitor,
+	long long curr_time, int i)
+{
+	set_simulation_stopped(monitor);
+	pthread_mutex_lock(&monitor->print_mutex);
+	printf("%lld %d burned out\n",
+		curr_time - monitor->start_time, monitor->coders[i].id);
+	pthread_mutex_unlock(&monitor->print_mutex);
+	wake_coders_up(monitor);
+	wake_scheduler_up(monitor);
+	pthread_cond_broadcast(&monitor->monitor_cond);
 }
 
 int	is_real_burnout(t_monitor *monitor)
@@ -59,36 +68,13 @@ int	is_real_burnout(t_monitor *monitor)
 					monitor->coders[i].last_compile_start
 					+ monitor->coders[i].time_to_burnout))
 			{
-				set_simulation_stopped(monitor);
-				pthread_mutex_lock(&monitor->print_mutex);
-				printf("%lld %d burned out\n",
-					curr_time - monitor->start_time, monitor->coders[i].id);
-				pthread_mutex_unlock(&monitor->print_mutex);
-				wake_coders_up(monitor);
-				wake_scheduler_up(monitor);
-				pthread_cond_broadcast(&monitor->monitor_cond);
+				print_burnout_message(monitor, curr_time, i);
 				return (1);
 			}
 		}
 		i++;
 	}
 	return (0);
-}
-
-int	is_routine_finished(t_monitor *monitor)
-{
-	int	i;
-
-	i = 0;
-	while (i < monitor->nb_coders)
-	{
-		if ((
-				monitor->coders[i].compiles_done
-				!= monitor->coders[i].number_of_compiles_required))
-			return (0);
-		i++;
-	}
-	return (1);
 }
 
 void	wake_coders_up(t_monitor *monitor)

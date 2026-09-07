@@ -2,10 +2,11 @@ NAME = codexion
 
 SRCS =	main.c	argument_checker.c	init.c \
 		coder_routine.c	coder_actions.c \
-		time_tools.c	deadlock_breaker.c	dongle_access.c	\
-		coder_actions.c	heap.c monitor_routine.c	monitor_tools.c	\
-		simulation_tools.c	scheduler_tools.c	scheduler_routine.c	\
-		simulator_tools.c	coder_routine_simulator.c	
+		time_tools.c	deadlock_breaker.c dongle_access.c	\
+		taking_dongle.c	coder_actions.c	heap.c \
+		monitor_routine.c	monitor_tools.c	simulation_tools.c	\
+		scheduler_tools.c	scheduler_routine.c	simulator_tools.c	\
+		coder_routine_simulator.c	
 
 OBJS = $(SRCS:.c=.o)
 
@@ -18,7 +19,6 @@ RM = rm -f
 
 all: $(NAME)
 
-*This project has been created as part of the 42 curriculum by srandro*
 $(NAME): $(OBJS)
 	$(CC) $(FLAGS) $^ -o $@
 

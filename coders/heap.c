@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 02:48:47 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/06 23:55:15 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/07 15:04:47 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,10 +60,19 @@ void	heap_push(t_heap *heap, t_coder *coder)
 	}
 }
 
+void	swap_coders(t_heap *heap, size_t smallest, size_t i)
+{
+	t_coder	*tmp;
+
+	tmp = heap->arr[smallest];
+	heap->arr[smallest] = heap->arr[i];
+	heap->arr[i] = tmp;
+	i = smallest;
+}
+
 t_coder	*heap_pop(t_heap *heap)
 {
 	t_coder	*res;
-	t_coder	*tmp;
 	size_t	second_child;
 	size_t	i;
 	size_t	smallest;
@@ -82,12 +91,7 @@ t_coder	*heap_pop(t_heap *heap)
 			&& heap->cmp(heap->arr[second_child], heap->arr[smallest]))
 			smallest = second_child;
 		if (heap->cmp(heap->arr[smallest], heap->arr[i]))
-		{
-			tmp = heap->arr[smallest];
-			heap->arr[smallest] = heap->arr[i];
-			heap->arr[i] = tmp;
-			i = smallest;
-		}
+			swap_coders(heap, smallest, i);
 		else
 			break ;
 	}

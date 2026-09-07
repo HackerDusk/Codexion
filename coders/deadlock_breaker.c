@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 02:48:38 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/06 23:22:06 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/07 14:42:34 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ void	coffman_circular_wait_breaker(t_coder *coder)
 {
 	if (coder->id % 2 == 0)
 	{
+		usleep(1000);
 		coder->first = coder->left_dongle;
 		coder->second = coder->right_dongle;
 	}

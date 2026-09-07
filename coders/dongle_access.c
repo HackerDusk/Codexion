@@ -6,14 +6,16 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 02:48:44 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/07 03:46:11 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/07 11:11:25 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-int	continue_after_first_dongle_access(t_coder *coder, struct timespec ts)
+int	continue_after_first_dongle_access(t_coder *coder)
 {
+	struct timespec	ts;
+
 	while (
 		(!coder->first->is_free || get_time_ms() < coder->first->available_at)
 		&& !is_simulation_stopped(coder->monitor))
@@ -29,18 +31,8 @@ int	continue_after_first_dongle_access(t_coder *coder, struct timespec ts)
 			pthread_cond_wait(&coder->first->dongle_cond,
 				&coder->first->dongle_mutex);
 	}
-	if (is_simulation_stopped(coder->monitor))
+	if (!taking_first_dongle(coder))
 		return (0);
-	pthread_mutex_lock(&coder->monitor->print_mutex);
-	if (is_simulation_stopped(coder->monitor))
-	{
-		pthread_mutex_unlock(&coder->monitor->print_mutex);
-		return (0);
-	}
-	coder->first->is_free = 0;
-	fprintf(stdout, "%lld %d has taken a dongle\n",
-		get_time_ms() - coder->monitor->start_time, coder->id);
-	pthread_mutex_unlock(&coder->monitor->print_mutex);
 	return (1);
 }
 
@@ -56,8 +48,10 @@ int	one_coder_case(t_coder *coder)
 	return (0);
 }
 
-int	continue_after_second_dongle_access(t_coder *coder, struct timespec ts)
+int	continue_after_second_dongle_access(t_coder *coder)
 {
+	struct timespec	ts;
+
 	while (
 		(!coder->second->is_free || get_time_ms() < coder->second->available_at)
 		&& !is_simulation_stopped(coder->monitor))
@@ -72,35 +66,16 @@ int	continue_after_second_dongle_access(t_coder *coder, struct timespec ts)
 			pthread_cond_wait(&coder->second->dongle_cond,
 				&coder->second->dongle_mutex);
 	}
-	if (is_simulation_stopped(coder->monitor))
-	{
-		pthread_mutex_unlock(&coder->second->dongle_mutex);
-		pthread_mutex_lock(&coder->first->dongle_mutex);
-		coder->first->available_at = (get_time_ms()
-				+ coder->first->dongle_cooldown);
-		coder->first->is_free = 1;
-		pthread_cond_broadcast(&coder->first->dongle_cond);
-		pthread_mutex_unlock(&coder->first->dongle_mutex);
+	if (!taking_second_dongle(coder))
 		return (0);
-	}
-	pthread_mutex_lock(&coder->monitor->print_mutex);
-	if (is_simulation_stopped(coder->monitor))
-	{
-		pthread_mutex_unlock(&coder->monitor->print_mutex);
-		return (0);
-	}
-	coder->second->is_free = 0;
-	fprintf(stdout, "%lld %d has taken a dongle\n",
-		get_time_ms() - coder->monitor->start_time, coder->id);
-	pthread_mutex_unlock(&coder->monitor->print_mutex);
 	return (1);
 }
 
-int	access_dongle(t_coder *coder, struct timespec ts)
+int	access_dongle(t_coder *coder)
 {
 	coffman_circular_wait_breaker(coder);
 	pthread_mutex_lock(&coder->first->dongle_mutex);
-	if (!continue_after_first_dongle_access(coder, ts))
+	if (!continue_after_first_dongle_access(coder))
 	{
 		pthread_mutex_unlock(&coder->first->dongle_mutex);
 		return (0);
@@ -109,7 +84,7 @@ int	access_dongle(t_coder *coder, struct timespec ts)
 		return (0);
 	pthread_mutex_unlock(&coder->first->dongle_mutex);
 	pthread_mutex_lock(&coder->second->dongle_mutex);
-	if (!continue_after_second_dongle_access(coder, ts))
+	if (!continue_after_second_dongle_access(coder))
 		return (0);
 	pthread_mutex_unlock(&coder->second->dongle_mutex);
 	return (1);
