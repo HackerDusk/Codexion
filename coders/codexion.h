@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 17:04:13 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/07 14:25:24 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/08 00:46:32 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ typedef struct s_monitor
 
 int			full_arg_checker(int argc, char **argv);
 t_monitor	*monitor_initializer(char **argv);
+void		free_partial_init(t_monitor *monitor);
 int			heap_initializer(t_monitor *monitor);
 t_coder		*heap_pop(t_heap *heap);
 void		coder_routine_simulator(t_monitor *monitor);

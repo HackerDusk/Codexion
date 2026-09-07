@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 02:49:03 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/07 00:16:13 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/08 00:55:06 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,4 +39,16 @@ int	keep_going_after_waiting_turn(t_coder *coder)
 		return (0);
 	}
 	return (1);
+}
+
+void	free_partial_init(t_monitor *monitor)
+{
+	if (monitor->heap)
+	{
+		free(monitor->heap->arr);
+		free(monitor->heap);
+	}
+	free(monitor->dongles);
+	free(monitor->coders);
+	free(monitor);
 }

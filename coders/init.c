@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 13:59:09 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/07 14:27:25 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/08 00:49:01 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,15 +97,16 @@ t_monitor	*monitor_initializer(char **argv)
 	if (atoi(argv[1]) <= 0)
 	{
 		fprintf(stderr, "number_of_coders must be greater than 0.\n");
+		free(monitor);
 		return (NULL);
 	}
 	monitor_val_initializer(monitor, argv);
 	if (!heap_initializer(monitor) || !dongles_initializer(monitor, argv)
 		|| !coders_initializer(monitor, argv))
 	{
-		if (monitor->dongles)
-			free(monitor->dongles);
-		free(monitor);
+		fprintf(stderr, "Error: allocation failed, number_of_coders");
+		fprintf(stderr, " too large.\n");
+		free_partial_init(monitor);
 		return (NULL);
 	}
 	return (monitor);

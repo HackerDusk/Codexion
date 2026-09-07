@@ -6,19 +6,28 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/25 19:54:45 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/06 23:08:49 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/07 22:50:50 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-#include <stdio.h>
 
 static int	fifo_or_edf(char *str)
 {
 	return (strcmp(str, "fifo") != 0 && strcmp(str, "edf") != 0);
 }
 
-static int	is_valid_positive_integer(char *str)
+static long long	is_negative(long long n, char *str)
+{
+	if (n < 0)
+	{
+		fprintf(stderr, "%s must be a POSITIVE INTEGER.\n", str);
+		return (1);
+	}
+	return (0);
+}
+
+static int	is_valid_positive_integer(char *str, char **argv, int i)
 {
 	long long	n;
 
@@ -32,13 +41,19 @@ static int	is_valid_positive_integer(char *str)
 	while (*str)
 	{
 		if (*str < '0' || *str > '9')
+		{
+			fprintf(stderr, "%s must be a POSITIVE INTEGER.\n", argv[i]);
 			return (0);
+		}
 		n = n * 10 + (*str - '0');
 		if (n > INT_MAX)
+		{
+			fprintf(stderr, "%s must not be over INTMAX.\n", argv[i]);
 			return (0);
+		}
 		str++;
 	}
-	return (n >= 0);
+	return (!is_negative(n, str));
 }
 
 static void	print_availble_args(int argc)
@@ -67,11 +82,8 @@ int	full_arg_checker(int argc, char **argv)
 	i = 1;
 	while (i < argc - 1)
 	{
-		if (!is_valid_positive_integer(argv[i]))
-		{
-			fprintf(stderr, "%s must be a POSITIVE INTEGER.\n", argv[i]);
+		if (!is_valid_positive_integer(argv[i], argv, i))
 			return (0);
-		}
 		i++;
 	}
 	if (fifo_or_edf(argv[i]))
