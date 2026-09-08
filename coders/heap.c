@@ -6,13 +6,11 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 02:48:47 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/08 00:33:36 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/08 13:45:10 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
-#include <stdlib.h>
-#include <time.h>
 
 int	heap_initializer(t_monitor *monitor)
 {

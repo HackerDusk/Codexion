@@ -105,10 +105,10 @@ Example:
   coders can legitimately be compiling at the same time as long as they're not
   sharing a physical dongle. `⌊number_of_coders / 2⌋` concurrent compiles is the
   normal, expected steady state, not a bug.
-- **EDF tie-break:** when two coders have exactly the same deadline
-  (`last_compile_start + time_to_burnout`), `cmp_edf` now falls back to the higher
-  coder `id` as the tiebreaker, so the ordering stays a strict total order (no two
-  coders ever compare as "equal" and get shuffled arbitrarily by the heap).
+- **EDF tie-break:** the submitted `cmp_edf` compares raw deadlines only
+  (`last_compile_start + time_to_burnout`); two coders with the exact same
+  deadline currently compare as "equal" and the heap doesn't guarantee which one
+  goes first.
 
 ## Available tests
 

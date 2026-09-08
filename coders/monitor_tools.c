@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 17:38:38 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/07 12:21:37 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/08 13:49:31 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,13 +92,13 @@ void	wake_coders_up(t_monitor *monitor)
 	pthread_mutex_lock(&monitor->scheduler_mutex);
 	i = 0;
 	while (i < monitor->nb_coders)
-		pthread_cond_broadcast(&monitor->coders[i++].turn_cond);
+		pthread_cond_signal(&monitor->coders[i++].turn_cond);
 	pthread_mutex_unlock(&monitor->scheduler_mutex);
 }
 
 void	wake_scheduler_up(t_monitor *monitor)
 {
 	pthread_mutex_lock(&monitor->scheduler_mutex);
-	pthread_cond_broadcast(&monitor->scheduler_cond);
+	pthread_cond_signal(&monitor->scheduler_cond);
 	pthread_mutex_unlock(&monitor->scheduler_mutex);
 }

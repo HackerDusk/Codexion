@@ -1,5 +1,7 @@
 NAME = codexion
 
+SRC_DIR = coders
+
 SRCS =	main.c	argument_checker.c	init.c \
 		coder_routine.c	coder_actions.c \
 		time_tools.c	deadlock_breaker.c dongle_access.c	\
@@ -7,13 +9,13 @@ SRCS =	main.c	argument_checker.c	init.c \
 		monitor_tools.c	simulation_tools.c	scheduler_tools.c	\
 		scheduler_routine.c	simulator_tools.c	coder_routine_simulator.c	
 
-OBJS = $(SRCS:.c=.o)
+OBJS = $(addprefix $(SRC_DIR)/, $(SRCS:.c=.o))
 
 CC = cc
 FLAGS = -Wall -Wextra -Werror -pthread
 RM = rm -f
 
-%.o: %.c
+$(SRC_DIR)/%.o:$(SRC_DIR)/%.c
 	$(CC) $(FLAGS) -c $< -o $@
 
 all: $(NAME)
@@ -29,4 +31,4 @@ fclean:	clean
 
 re: fclean all
 
-.PHONY: clean fclean re all
+.PHONY: all clean fclean re
