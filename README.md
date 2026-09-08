@@ -255,18 +255,6 @@ happens to not race during a given run.
 ./codexion 4 300 200 100 100 5 0 fifo | grep -A 10 "burned out"
 ```
 
-A small companion script, `coders/log_validator.py`, replays a captured log
-line-by-line and checks the per-coder state machine, dongle/cooldown accounting,
-and burnout timing precision without needing to know anything about the source
-code. It is a personal dev tool, not part of the submission, and is not graded —
-but it's handy during defence:
-
-```bash
-./codexion 5 800 200 100 100 7 20 edf > /tmp/log.txt
-python3 coders/log_validator.py /tmp/log.txt --coders 5 --burnout 800 \
-  --compile 200 --debug 100 --refactor 100 --required 7 --cooldown 20
-```
-
 ## Blocking cases handled
 
 - **Circular wait (Coffman's 4th condition) — the main deadlock risk.**
@@ -342,7 +330,7 @@ broadcast on the relevant condition variables while holding their matching mutex
 This one-writer-many-readers-under-the-same-lock pattern is what makes it safe for
 the monitor to inspect every coder's state at once without a coder being mid-update.
 
-## What I've learned
+## New things I've learned
 
 | Fonction / notion | Role | When to use it |
 |---|---|---|
@@ -355,9 +343,8 @@ the monitor to inspect every coder's state at once without a coder being mid-upd
 | `struct timeval` | seconds + microseconds | Output of `gettimeofday` |
 | `struct timespec` | seconds + nanoseconds | Input of `pthread_cond_timedwait` (conversion: `tv_usec * 1000`) |
 | `ETIMEDOUT` (`<errno.h>`) | Return value of `timedwait` when the deadline has passed | Detecting a burnout |
-| `malloc`/`free` | Heap allocation/release | Any structure whose size is only known at runtime, or that must outlive the function that creates it |
 | `atoi` | Converts a string (`argv`) to an `int` | Parsing the arguments — careful: it doesn't detect errors itself, so negative values/non-integers must be validated by hand (as the subject requires) |
-| `write`/`printf`/`fprintf` | Output | Always guarded by a logging mutex so two lines never interleave |
+| `fprintf` | Output | Always guarded by a logging mutex so two lines never interleave |
 
 A few things this project actually changed in how I think about concurrency:
 
@@ -386,19 +373,13 @@ A few things this project actually changed in how I think about concurrency:
   [Dining Philosophers Problem — GeeksforGeeks](https://www.geeksforgeeks.org/dining-philosophers-problem/)
 - Binary heaps / priority queues, used to hand-roll the FIFO/EDF scheduling queue
   (C89 has no standard library container for this):
-  [Heap Data Structure — GeeksforGeeks](https://www.geeksforgeeks.org/dsa/heap-data-structure/)
-- Earliest Deadline First scheduling, as background for the `edf` policy
-  (real-time systems literature)
-- The Valgrind Helgrind/DRD manuals
+  [Heap Data Structure — GeeksforGeeks](https://www.geeksforgeeks.org/dsa/binary-heap/)
+- [Coffman conditions](https://faq.computersciencewiki.org/index.php/home/article/coffman-conditions)
 
-**How AI was used:** AI was used as a second reviewer, not as a code generator for
-this project — every line above was written and understood before being submitted.
-Concretely, it was used to: discuss and sanity-check the deadlock-avoidance argument
-for `coffman_circular_wait_breaker()` (confirming it holds for both even and odd
-`number_of_coders`) after a disagreement came up during peer learning; help debug a
-resource-cleanup path in `monitor_initializer()` that leaked memory (and could have
-double-freed) when `number_of_coders` is too large for the machine to allocate;
-help design the EDF tie-break rule (`cmp_edf` falling back to the highest coder id
-on equal deadlines) for the live-coding exercise; and help draft/organize this
-README. It was **not** used to write the core dongle-acquisition, scheduling, or
-monitor logic, which was designed and implemented during peer learning sessions.
+- The Valgrind Helgrind manuals
+
+## How AI was used:
+ - To find more deep ressources to learn
+ - README Skeleton
+
+>The project was developed with a focus on understanding, experimentation, and mainly peer learning.
