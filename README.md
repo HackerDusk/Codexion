@@ -245,6 +245,25 @@ valgrind --tool=helgrind ./codexion 4 800 200 100 100 5 10 edf
 ./codexion 4 300 200 100 100 5 0 fifo | grep -A 10 "burned out"
 ```
 
+### Example of simulation run:
+```bash
+0 1 has taken a dongle
+2 1 has taken a dongle
+2 1 is compiling
+202 1 is debugging
+402 1 is refactoring
+405 2 has taken a dongle
+406 2 has taken a dongle
+406 2 is compiling
+606 2 is debugging
+806 2 is refactoring
+900 3 has taken a dongle
+902 3 has taken a dongle
+902 3 is compiling
+1102 3 is debugging
+1302 3 is refactoring
+1505 4 burned out
+```
 ## Blocking cases handled
 
 - **Circular wait (Coffman's 4th condition) — the main deadlock risk.**
