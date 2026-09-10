@@ -357,6 +357,7 @@ A few things this project actually changed in how I think about concurrency:
 - [The official documentation for Mutex](https://man7.org/linux/man-pages/man3/pthread_mutex_init.3p.html)
 - [pthread_cond_init](https://man7.org/linux/man-pages/man3/pthread_cond_init.3p.html)
 - [Multithreading in C](https://www.geeksforgeeks.org/c/multithreading-in-c/)
+- [Time converter](https://www.convertworld.com/en/time/seconds)
 
 - The Valgrind Helgrind manuals
 
