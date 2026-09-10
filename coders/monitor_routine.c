@@ -6,15 +6,15 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 19:24:43 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/08 13:45:10 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/09 22:00:04 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-long long	change_curr_deadline(t_coder coder)
+long long	change_curr_deadline(t_coder *coder)
 {
-	return (coder.last_compile_start + coder.time_to_burnout);
+	return (coder->last_compile_start + coder->time_to_burnout);
 }
 
 int	is_routine_finished(t_monitor *monitor)
@@ -47,7 +47,6 @@ static int	is_end_of_routine(t_monitor *monitor, int ret)
 	{
 		set_simulation_stopped(monitor);
 		pthread_cond_broadcast(&monitor->monitor_cond);
-		wake_scheduler_up(monitor);
 		wake_coders_up(monitor);
 		pthread_mutex_unlock(&monitor->monitor_mutex);
 		return (1);

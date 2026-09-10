@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 02:48:33 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/08 13:43:03 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/09 03:20:48 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,6 @@ void	*coder_routine(void *arg)
 	{
 		if (end_of_simulation(coder))
 			break ;
-		pthread_mutex_lock(&coder->monitor->scheduler_mutex);
-		if (!coder->turn)
-			book_a_slot(coder);
-		if (!keep_going_after_waiting_turn(coder))
-			break ;
-		coder->turn = 0;
-		pthread_mutex_unlock(&coder->monitor->scheduler_mutex);
 		if (!access_dongle(coder))
 			break ;
 		debug_timestamp = coder_is_compiling(coder, debug_timestamp);

@@ -2,12 +2,12 @@ NAME = codexion
 
 SRC_DIR = coders
 
-SRCS =	main.c	argument_checker.c	init.c \
-		coder_routine.c	coder_actions.c \
+SRCS =	main.c	argument_checker.c	arguments_checker_tools.c	\
+		init.c	coder_routine.c	coder_actions.c	\
 		time_tools.c	deadlock_breaker.c dongle_access.c	\
 		taking_dongle.c	heap.c monitor_routine.c	\
-		monitor_tools.c	simulation_tools.c	scheduler_tools.c	\
-		scheduler_routine.c	simulator_tools.c	coder_routine_simulator.c	
+		monitor_tools.c	simulation_tools.c	simulator_tools.c	\
+		scheduler_tools.c	coder_routine_simulator.c	
 
 OBJS = $(addprefix $(SRC_DIR)/, $(SRCS:.c=.o))
 

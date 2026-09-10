@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 22:23:21 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/08 14:50:58 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/10 10:14:10 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,26 +19,13 @@ int	cmp_fifo(t_coder *cd_a, t_coder *cd_b)
 
 int	cmp_edf(t_coder *cd_a, t_coder *cd_b)
 {
-	return ((cd_a->last_compile_start
-			+ cd_a->time_to_burnout) < (
-			cd_b->last_compile_start
-			+ cd_b->time_to_burnout));
-}
+	long long	deadline_a;
+	long long	deadline_b;
 
-void	get_next_coder(t_monitor *monitor)
-{
-	t_coder	*next;
-
-	next = heap_pop(monitor->heap);
-	if (!next)
-		return ;
-	next->turn = 1;
-	pthread_cond_signal(&next->turn_cond);
-}
-
-void	book_a_slot(t_coder *coder)
-{
-	coder->request_time = get_time_ms();
-	heap_push(coder->monitor->heap, coder);
-	pthread_cond_signal(&coder->monitor->scheduler_cond);
+	deadline_a = cd_a->last_compile_start + cd_a->time_to_burnout;
+	deadline_b = cd_b->last_compile_start + cd_b->time_to_burnout;
+	if (deadline_a != deadline_b)
+		return (deadline_a < deadline_b);
+	else
+		return (cd_a->id < cd_b->id);
 }

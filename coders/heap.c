@@ -6,31 +6,31 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 02:48:47 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/08 13:45:10 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/10 03:27:42 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-int	heap_initializer(t_monitor *monitor)
+int	heap_initializer(t_dongle *dongle, t_monitor *monitor)
 {
-	monitor->heap = malloc(sizeof(t_heap));
-	if (!monitor->heap)
+	dongle->heap = malloc(sizeof(t_heap));
+	if (!dongle->heap)
 		return (0);
-	monitor->heap->arr = (
-			malloc(sizeof(t_coder *) * (monitor->nb_coders)));
-	if (!monitor->heap->arr)
+	dongle->heap->arr = (
+			malloc(sizeof(t_coder *) * (2)));
+	if (!dongle->heap->arr)
 	{
-		free(monitor->heap);
-		monitor->heap = NULL;
+		free(dongle->heap);
+		dongle->heap = NULL;
 		return (0);
 	}
-	monitor->heap->capacity = monitor->nb_coders;
-	monitor->heap->size = 0;
+	dongle->heap->capacity = 2;
+	dongle->heap->size = 0;
 	if (!strcmp(monitor->scheduler_type, "edf"))
-		monitor->heap->cmp = cmp_edf;
+		dongle->heap->cmp = cmp_edf;
 	if (!strcmp(monitor->scheduler_type, "fifo"))
-		monitor->heap->cmp = cmp_fifo;
+		dongle->heap->cmp = cmp_fifo;
 	return (1);
 }
 
@@ -60,14 +60,14 @@ void	heap_push(t_heap *heap, t_coder *coder)
 	}
 }
 
-void	swap_coders(t_heap *heap, size_t smallest, size_t i)
+static size_t	swap_coders(t_heap *heap, size_t smallest, size_t i)
 {
 	t_coder	*tmp;
 
 	tmp = heap->arr[smallest];
 	heap->arr[smallest] = heap->arr[i];
 	heap->arr[i] = tmp;
-	i = smallest;
+	return (smallest);
 }
 
 t_coder	*heap_pop(t_heap *heap)
@@ -91,7 +91,7 @@ t_coder	*heap_pop(t_heap *heap)
 			&& heap->cmp(heap->arr[second_child], heap->arr[smallest]))
 			smallest = second_child;
 		if (heap->cmp(heap->arr[smallest], heap->arr[i]))
-			swap_coders(heap, smallest, i);
+			i = swap_coders(heap, smallest, i);
 		else
 			break ;
 	}

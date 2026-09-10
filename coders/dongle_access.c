@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 02:48:44 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/08 13:43:12 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/09 14:09:00 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,12 @@ int	continue_after_first_dongle_access(t_coder *coder)
 {
 	struct timespec	ts;
 
-	while (
-		(!coder->first->is_free || get_time_ms() < coder->first->available_at)
+	coder->request_time = get_time_ms();
+	heap_push(coder->first->heap, coder);
+	while ((
+			coder->first->heap->arr[0]->id != coder->id
+			|| !coder->first->is_free
+			|| (get_time_ms() < coder->first->available_at))
 		&& !is_simulation_stopped(coder->monitor))
 	{
 		if (get_time_ms() < coder->first->available_at)
@@ -40,7 +44,6 @@ int	one_coder_case(t_coder *coder)
 {
 	if (coder->monitor->nb_coders == 1)
 	{
-		pthread_mutex_unlock(&coder->first->dongle_mutex);
 		while (!is_simulation_stopped(coder->monitor))
 			usleep(1000);
 		return (1);
@@ -52,8 +55,12 @@ int	continue_after_second_dongle_access(t_coder *coder)
 {
 	struct timespec	ts;
 
-	while (
-		(!coder->second->is_free || get_time_ms() < coder->second->available_at)
+	coder->request_time = get_time_ms();
+	heap_push(coder->second->heap, coder);
+	while ((
+			coder->second->heap->arr[0]->id != coder->id
+			|| !coder->second->is_free
+			|| (get_time_ms() < coder->second->available_at))
 		&& !is_simulation_stopped(coder->monitor))
 	{
 		if (get_time_ms() < coder->second->available_at)
@@ -81,11 +88,17 @@ int	access_dongle(t_coder *coder)
 		return (0);
 	}
 	if (one_coder_case(coder))
-		return (0);
+	{
+		pthread_mutex_unlock(&coder->first->dongle_mutex);
+		return (1);
+	}
 	pthread_mutex_unlock(&coder->first->dongle_mutex);
 	pthread_mutex_lock(&coder->second->dongle_mutex);
 	if (!continue_after_second_dongle_access(coder))
+	{
+		pthread_mutex_unlock(&coder->second->dongle_mutex);
 		return (0);
+	}
 	pthread_mutex_unlock(&coder->second->dongle_mutex);
 	return (1);
 }

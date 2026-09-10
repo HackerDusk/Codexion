@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/07 00:16:43 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/08 13:45:10 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/09 14:09:16 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,6 @@ void	thread_creator(t_monitor *monitor, void *(*coder_routine)(void *))
 {
 	int	i;
 
-	pthread_create(&monitor->scheduler_thread, NULL, scheduler_routine,
-		monitor);
 	pthread_create(&monitor->monitor_thread, NULL, monitor_routine,
 		monitor);
 	i = 0;
@@ -50,7 +48,6 @@ void	thread_joiner(t_monitor *monitor)
 		i++;
 	}
 	pthread_join(monitor->monitor_thread, NULL);
-	pthread_join(monitor->scheduler_thread, NULL);
 }
 
 void	cond_mutex_destroyer(t_monitor *monitor)
@@ -62,22 +59,10 @@ void	cond_mutex_destroyer(t_monitor *monitor)
 	{
 		pthread_mutex_destroy(&monitor->dongles[i].dongle_mutex);
 		pthread_cond_destroy(&monitor->dongles[i].dongle_cond);
-		pthread_cond_destroy(&monitor->coders[i].turn_cond);
 		i++;
 	}
 	pthread_mutex_destroy(&monitor->monitor_mutex);
 	pthread_mutex_destroy(&monitor->print_mutex);
 	pthread_cond_destroy(&monitor->monitor_cond);
-	pthread_mutex_destroy(&monitor->scheduler_mutex);
-	pthread_cond_destroy(&monitor->scheduler_cond);
 	pthread_mutex_destroy(&monitor->stop_mutex);
-}
-
-void	free_models(t_monitor *monitor)
-{
-	free(monitor->heap->arr);
-	free(monitor->heap);
-	free(monitor->coders);
-	free(monitor->dongles);
-	free(monitor);
 }

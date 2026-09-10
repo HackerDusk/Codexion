@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by srandro*
+*This project has been created as part of the 42 curriculum by srandro.*
 
 # Codexion
 
@@ -9,7 +9,7 @@
 - [Available tests](#available-tests)
 - [Blocking cases handled](#blocking-cases-handled)
 - [Thread synchronization mechanisms](#thread-synchronization-mechanisms)
-- [What I've learned](#what-ive-learned)
+- [New things I've learned](#new-things-ive-learned)
 - [Resources](#resources)
 
 ## Description
@@ -38,6 +38,15 @@ two shared resources at once, and on top of that the subject adds two real-time-
 concerns that the textbook version doesn't have — a hard per-coder deadline (burnout)
 that a monitor thread must detect within 10 ms, and a pluggable arbitration policy
 (FIFO vs. EDF) for who wins a contested dongle.
+## Core Definitions
+### Thread:
+> A single sequence of instructions executed by a CPU. A single program can have multiple threads running at the same time, sharing the same memory space but doing different tasks independently.
+
+### Mutex (Mutual Exclusion):
+> A locking mechanism used to synchronize access to shared data. It acts like a key to a room; only the thread holding the mutex key can enter the critical section to read or write shared memory, forcing other threads to wait until the key is returned.
+
+### Cond (Condition Variable):
+> A communication queue where a thread can go to sleep and wait for a signal from another thread. Instead of wasting CPU power constantly checking if a condition is met (busy-waiting), the thread pauses until it is explicitly woken up.
 
 ## Instructions
 
@@ -45,7 +54,6 @@ that a monitor thread must detect within 10 ms, and a pluggable arbitration poli
 
 ```bash
 make        # builds ./codexion
-make bonus  # builds the bonus part, if any
 make clean  # removes object files
 make fclean # removes object files + binary
 make re     # fclean + all
@@ -69,6 +77,8 @@ make re     # fclean + all
 | `dongle_cooldown` | ms | time a dongle stays unavailable after being released |
 | `scheduler` | `fifo` \| `edf` | arbitration policy used when several coders request the same dongle |
 
+> All 8 arguments are mandatory positive integers except `scheduler`, which must be exactly `fifo` or `edf`. Invalid input is rejected on stderr with exit code 1.
+
 Example:
 
 ```bash
@@ -85,30 +95,24 @@ Example:
 > `-lpthread` alone only gets you the first half.
 
 ### Implementation notes
+- **Priority ordering vs. dongle mutual exclusion are two separate layers.** Each
+  dongle owns its own binary min-heap (`t_heap`, hand-rolled since C89 has no
+  standard priority queue). There is no separate scheduler thread: a coder pushes
+  *itself* onto the heap of the dongle it wants (`heap_push`, in
+  `continue_after_first_dongle_access`/`continue_after_second_dongle_access`) the
+  moment it starts waiting, then loops on `pthread_cond_wait`/`timedwait` until it
+  is simultaneously the top of that heap (`heap->arr[0]`) **and** the dongle is
+  free and past its cooldown. FIFO orders that heap by arrival order
+  (`cmp_fifo`/`request_time`), EDF by earliest `last_compile_start + time_to_burnout`
+  (`cmp_edf`). Actually holding a dongle is a completely separate, per-dongle
+  `pthread_mutex_t`/`pthread_cond_t` pair, so several coders can legitimately be
+  compiling at the same time as long as they're not sharing a physical dongle.
+  `⌊number_of_coders / 2⌋` concurrent compiles is the normal, expected steady state, not a bug.
 
-- **`number_of_coders` has no artificial upper cap.** The subject only requires
-  rejecting negative numbers, non-integers, and values over `INT_MAX` — it does not
-  ask for a specific maximum, so we don't invent one. In practice, 200+ coders run
-  fine (tested), since each coder/dongle is a small, fixed-size struct. For
-  astronomically large values (e.g. `INT_MAX`), the `malloc` calls for the dongles
-  or coders arrays will eventually fail because the requested memory is larger than
-  what the machine can provide; `monitor_initializer` detects this, frees everything
-  it had already allocated, prints a clear error on `stderr`, and exits with code 1 —
-  no crash, no leak, no silent failure.
-- **Turn dispatch vs. dongle mutual exclusion are two separate layers.** A single
-  binary min-heap (`t_heap`, hand-rolled since C89 has no standard priority queue)
-  orders *when* a coder is allowed to start requesting its two dongles (FIFO =
-  arrival order, EDF = earliest `last_compile_start + time_to_burnout` first, see
-  `cmp_fifo`/`cmp_edf`). Actually holding a dongle is a completely separate,
-  per-dongle `pthread_mutex_t`/`pthread_cond_t` pair. This means the scheduler never
-  serializes compiling itself — it only orders who gets to *try* next — so several
-  coders can legitimately be compiling at the same time as long as they're not
-  sharing a physical dongle. `⌊number_of_coders / 2⌋` concurrent compiles is the
-  normal, expected steady state, not a bug.
-- **EDF tie-break:** the submitted `cmp_edf` compares raw deadlines only
-  (`last_compile_start + time_to_burnout`); two coders with the exact same
-  deadline currently compare as "equal" and the heap doesn't guarantee which one
-  goes first.
+- **EDF tie-break:** `cmp_edf` compares `last_compile_start + time_to_burnout`
+  first; if two coders land on the exact same deadline, it falls back to comparing
+  `id` (lower id wins the tie), so the comparison is always a strict order and the
+  heap never has to make an arbitrary choice.
 
 ## Available tests
 
@@ -122,6 +126,7 @@ exits with code 1, without allocating anything or starting a single thread.
 
 ```bash
 # Incorrect number of arguments (fewer or more than 8)
+
 ./codexion
 # -> "Missing arguments, got only 0/8 args." + usage reminder
 
@@ -129,6 +134,7 @@ exits with code 1, without allocating anything or starting a single thread.
 # -> "Missing arguments, got only 7/8 args." + usage reminder
 
 # Negative or invalid arguments
+
 ./codexion -4 800 200 100 100 5 0 fifo
 # -> "-4 must be a POSITIVE INTEGER."
 
@@ -139,6 +145,7 @@ exits with code 1, without allocating anything or starting a single thread.
 # -> "Scheduler must be exactly one of: \"fifo\" or \"edf\"."
 
 # Non-numeric or floating-point characters
+
 ./codexion 4 800abc 200 100 100 5 0 fifo
 # -> "800abc must be a POSITIVE INTEGER."
 
@@ -146,10 +153,12 @@ exits with code 1, without allocating anything or starting a single thread.
 # -> "800.5 must be a POSITIVE INTEGER."
 
 # Zero coders
+
 ./codexion 0 800 200 100 100 5 0 fifo
 # -> "number_of_coders must be greater than 0."
 
 # Integer overflow / INT_MAX edge cases
+
 ./codexion 4 2147483648 200 100 100 5 0 fifo
 # -> "2147483648 must not be over INTMAX."
 
@@ -157,6 +166,7 @@ exits with code 1, without allocating anything or starting a single thread.
 # -> "999999999999999 must not be over INTMAX."
 
 # Unreasonably large but technically valid number_of_coders
+
 ./codexion 2147483647 300 200 100 100 5 0 fifo
 # -> allocation fails gracefully: "Error: allocation failed, number_of_coders
 #    too large." on stderr, exit code 1, nothing leaked (see Instructions above)
@@ -181,10 +191,9 @@ valgrind --leak-check=full ./codexion 4 -800 200 100 100 5 0 fifo
 valgrind --leak-check=full ./codexion 200000000 300 200 100 100 5 0 fifo
 ```
 
-Expect `0 bytes in 0 blocks` lost in every case, including the last one — that's
-exactly what `free_partial_init()` (see below) exists to guarantee.
+Expect `0 bytes in 0 blocks` lost in every case, including the last one — that's exactly what `free_models()` (see below) exists to guarantee.
 
-### Thread safety (Helgrind / DRD)
+### Thread safety (Helgrind)
 
 ```bash
 # Helgrind, FIFO scheduling
@@ -205,25 +214,6 @@ valgrind --tool=helgrind ./codexion 4 800 200 100 100 5 10 edf
 > (a different tool, different instrumentation) reports 0 errors on the exact same
 > run, that's a good cross-check that the Helgrind report is this known limitation
 > rather than a real bug.
-
-To turn that manual cross-check into an automated smoke test, grep the report for
-any stack frame that actually points into one of *our* source files. If nothing
-matches, every reported race (if any) is confined to libc/libpthread internals —
-i.e. the known false positive above, not a bug in this project:
-
-```bash
-valgrind --tool=helgrind ./codexion 4 800 200 100 100 5 10 fifo 2>&1 \
-  | grep -E "(main|init|argument_checker|heap|dongle_access|taking_dongle|\
-deadlock_breaker|coder_routine|coder_actions|coder_routine_simulator|\
-scheduler_routine|scheduler_tools|monitor_routine|monitor_tools|\
-simulation_tools|simulator_tools)\.c"
-# -> no output = no Helgrind frame touches our code = pass
-```
-
-Still double-check that every `pthread_cond_signal`/`pthread_cond_broadcast` you
-write yourself is issued while holding the associated mutex — that part is
-genuinely under your control and this grep won't catch a mistake there if it
-happens to not race during a given run.
 
 ### Scenario / edge cases
 
@@ -279,39 +269,27 @@ happens to not race during a given run.
   the same first dongle so the contention resolves faster and more predictably
   instead of both threads hammering the same mutex at the exact same instant.
 - **Fair arbitration / starvation across the run.** A shared, hand-rolled binary
-  heap (`heap.c`) orders coders by arrival time (`fifo`) or by
-  `last_compile_start + time_to_burnout` (`edf`) before they are allowed to attempt
-  a dongle. A dedicated scheduler thread continuously pops the highest-priority
-  waiting coder and grants it a "turn". Under `edf`, a coder that is close to
-  burning out is always served before one that just compiled, which is what
-  prevents starvation: nobody can be repeatedly skipped while their deadline gets
-  closer and closer. When two coders share the exact same deadline, `cmp_edf` falls
-  back to the higher `id`, so the comparison is always a strict order and the heap
-  never has to make an arbitrary choice.
+  heap (one per dongle, `heap.c`) orders coders by arrival time (`fifo`) or by
+  `last_compile_start + time_to_burnout` (`edf`).Whoever is waiting for that dongle loops until it becomes `heap->arr[0]` — i.e. the top of the heap always goes first, no separate dispatcher needed. Under `edf`, a coder that is close to burning out is always served before one that just compiled, which is what prevents starvation: nobody can be repeatedly skipped while their deadline gets closer and closer. When two coders share the exact same deadline, `cmp_edf` falls back to the lower `id`, so the comparison is always a strict order and the heap never has to make an arbitrary choice.
 - **Dongle cooldown.** Each `t_dongle` stores `available_at`
-  (`release time + dongle_cooldown`). A coder waiting on a dongle either
-  `pthread_cond_wait`s (if the dongle is simply held by someone else) or
-  `pthread_cond_timedwait`s until `available_at` (if it's free but still cooling
+  (`release time + dongle_cooldown`). A coder waiting on a dongle either `pthread_cond_wait`s (if the dongle is simply held by someone else) or `pthread_cond_timedwait`s until `available_at` (if it's free but still cooling
   down), so cooldown is enforced without ever busy-waiting the CPU.
-- **Precise burnout detection.** A dedicated monitor thread never polls: it
-  computes the single closest upcoming deadline across all coders
-  (`get_closest_deadline`) and calls `pthread_cond_timedwait` for exactly that long.
-  On wake-up, if it timed out (`ETIMEDOUT`) it re-checks every coder's real deadline
-  (`is_real_burnout`) before declaring a burnout — this two-step check (wait exactly
-  until the earliest deadline, then re-verify) is what keeps the reported burnout
-  timestamp within the 10 ms tolerance the subject asks for, instead of drifting.
-- **Log serialization.** Every `fprintf`/`printf` that writes a state-change line is
-  wrapped in `monitor->print_mutex`, so two coder threads (or a coder and the
-  monitor) can never interleave two lines into a corrupted one.
+- **Precise burnout detection.** A dedicated monitor thread never polls: it computes the single closest upcoming deadline across all coders (`get_closest_deadline`) and calls `pthread_cond_timedwait` for exactly that long.
+On wake-up, if it timed out (`ETIMEDOUT`) it re-checks every coder's real deadline (`is_real_burnout`) before declaring a burnout — this two-step check (wait exactly until the earliest deadline, then re-verify) is what keeps the reported burnout
+timestamp within the 10 ms tolerance the subject asks for, instead of drifting.
+- **Log serialization.** Every `fprintf`/`printf` that writes a state-change line is wrapped in `monitor->print_mutex`, so two coder threads (or a coder and the monitor) can never interleave two lines into a corrupted one.
 
 ## Thread synchronization mechanisms
+- **Safe cleanup on partial initialization failure.** `dongles_initializer()` can
+  fail before `monitor->dongles` is even allocated (e.g. `number_of_coders` close
+  to `INT_MAX` making the `malloc` too large to satisfy). `free_models()` (the cleanup path called on any init failure) checks `monitor->dongles` for `NULL` before indexing into it, so a failed allocation is reported cleanly on `stderr` and the program exits with code 1 instead of dereferencing a null pointer.
 
 | Primitive | Protects | Notes |
 |---|---|---|
 | `dongle_mutex` + `dongle_cond` (per dongle) | `is_free`, `available_at` of one specific dongle | A coder locks it, loops on `pthread_cond_wait`/`timedwait` while the dongle isn't free or still cooling down, then marks it taken. `release_dongles()` sets `available_at` and broadcasts so every waiter re-checks. |
-| `scheduler_mutex` + `scheduler_cond` | the turn-dispatch heap, and each coder's `turn` flag | `book_a_slot()` pushes a coder into the heap and wakes the scheduler thread; `scheduler_routine()` pops the highest-priority coder and sets `turn = 1`, broadcasting on that coder's own `turn_cond` so *only* that coder resumes. |
+| dongle heap push (no dedicated mutex) | ordering who tries a given dongle next | Each coder calls `heap_push` on the target dongle's heap right before waiting on it (under that same `dongle_mutex`), so the heap itself is already protected by the mutex it's paired with — no extra lock needed. |
 | `monitor_mutex` + `monitor_cond` | the compile/debug/refactor timing loops, and the monitor's own wake-ups | `pthread_cond_timedwait` is used instead of `usleep` for these phases so a burnout or an early simulation stop can interrupt a phase immediately instead of waiting for a fixed sleep to elapse. |
-| `stop_mutex` | `monitor->stop_simulation` | The one piece of state read from *every* thread (coders, scheduler, monitor) on every loop iteration; kept in a mutex of its own instead of piggy-backing on `monitor_mutex` to avoid unrelated threads contending on the same lock just to check "are we done?". |
+| `stop_mutex` | `monitor->stop_simulation` | The one piece of state read from *every* thread (coders and the monitor) on every loop iteration; kept in a mutex of its own to avoid unrelated threads contending on the same lock just to check "are we done?". |
 | `print_mutex` | stdout | Held only for the duration of a single `fprintf` call — the shortest possible critical section — so log lines are serialized without adding real contention between coders. |
 
 **Example of a race the locking prevents:** without `dongle_mutex`, two coders could
@@ -325,8 +303,7 @@ to waiting on `dongle_cond` instead of double-taking the resource.
 into a coder's compile timers; it only *reads* `compiles_done` and
 `last_compile_start` (under `monitor_mutex`, which is also held by the coder while it
 updates those same fields in `in_middle_of_compilation()`), and it only ever
-*signals* coders back through `wake_coders_up()`/`wake_scheduler_up()`, which
-broadcast on the relevant condition variables while holding their matching mutex.
+*signals* coders back through `wake_coders_up()`, which broadcast on the relevant condition variables while holding their matching mutex.
 This one-writer-many-readers-under-the-same-lock pattern is what makes it safe for
 the monitor to inspect every coder's state at once without a coder being mid-update.
 
@@ -368,18 +345,25 @@ A few things this project actually changed in how I think about concurrency:
 
 ## Resources
 
-- `man pthread_create`, `man pthread_cond_timedwait`, `man pthread_mutex_lock`
 - The dining philosophers problem (Dijkstra), as general background reading:
   [Dining Philosophers Problem — GeeksforGeeks](https://www.geeksforgeeks.org/dining-philosophers-problem/)
 - Binary heaps / priority queues, used to hand-roll the FIFO/EDF scheduling queue
   (C89 has no standard library container for this):
   [Heap Data Structure — GeeksforGeeks](https://www.geeksforgeeks.org/dsa/binary-heap/)
 - [Coffman conditions](https://faq.computersciencewiki.org/index.php/home/article/coffman-conditions)
+- General introduction to threads:
+  - https://youtu.be/1myWEH8IGt4?si=9ncRpQyp40IjCh93
+  - https://man7.org/linux/man-pages/man7/pthreads.7.html
+- [The official documentation for Mutex](https://man7.org/linux/man-pages/man3/pthread_mutex_init.3p.html)
+- [pthread_cond_init](https://man7.org/linux/man-pages/man3/pthread_cond_init.3p.html)
+- [Multithreading in C](https://www.geeksforgeeks.org/c/multithreading-in-c/)
 
 - The Valgrind Helgrind manuals
 
 ## How AI was used:
  - To find more deep ressources to learn
+ - More examples to understand more the concept
+ - Exercises (Practice) to get used to new tools in `External Function`
  - README Skeleton
 
->The project was developed with a focus on understanding, experimentation, and mainly peer learning.
+>The project was developed with a focus on understanding, experimentation, and **mainly peer learning**.

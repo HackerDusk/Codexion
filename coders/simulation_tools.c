@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 02:49:03 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/08 13:45:10 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/09 13:40:24 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,24 +29,20 @@ void	set_simulation_stopped(t_monitor *monitor)
 	pthread_mutex_unlock(&monitor->stop_mutex);
 }
 
-int	keep_going_after_waiting_turn(t_coder *coder)
+void	free_models(t_monitor *monitor)
 {
-	while (!coder->turn && !is_simulation_stopped(coder->monitor))
-		pthread_cond_wait(&coder->turn_cond, &coder->monitor->scheduler_mutex);
-	if (is_simulation_stopped(coder->monitor))
-	{
-		pthread_mutex_unlock(&coder->monitor->scheduler_mutex);
-		return (0);
-	}
-	return (1);
-}
+	int	i;
 
-void	free_partial_init(t_monitor *monitor)
-{
-	if (monitor->heap)
+	i = 0;
+	while (monitor->dongles && i < monitor->nb_coders)
 	{
-		free(monitor->heap->arr);
-		free(monitor->heap);
+		if (monitor->dongles[i].heap)
+		{
+			free(monitor->dongles[i].heap->arr);
+			free(monitor->dongles[i].heap);
+			monitor->dongles[i].heap = NULL;
+		}
+		i++;
 	}
 	free(monitor->dongles);
 	free(monitor->coders);

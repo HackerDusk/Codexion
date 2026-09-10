@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 17:38:38 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/08 13:49:31 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/09 22:04:24 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ long long	get_closest_deadline(t_monitor *monitor)
 			if (!found || curr_deadline
 				> (monitor->coders[i].last_compile_start
 					+ monitor->coders[i].time_to_burnout))
-				curr_deadline = change_curr_deadline(monitor->coders[i]);
+				curr_deadline = change_curr_deadline(&monitor->coders[i]);
 			found = 1;
 		}
 		i++;
@@ -48,7 +48,6 @@ static void	print_burnout_message(t_monitor *monitor,
 		curr_time - monitor->start_time, monitor->coders[i].id);
 	pthread_mutex_unlock(&monitor->print_mutex);
 	wake_coders_up(monitor);
-	wake_scheduler_up(monitor);
 	pthread_cond_broadcast(&monitor->monitor_cond);
 }
 
@@ -89,16 +88,4 @@ void	wake_coders_up(t_monitor *monitor)
 		pthread_mutex_unlock(&monitor->dongles[i].dongle_mutex);
 		i++;
 	}
-	pthread_mutex_lock(&monitor->scheduler_mutex);
-	i = 0;
-	while (i < monitor->nb_coders)
-		pthread_cond_signal(&monitor->coders[i++].turn_cond);
-	pthread_mutex_unlock(&monitor->scheduler_mutex);
-}
-
-void	wake_scheduler_up(t_monitor *monitor)
-{
-	pthread_mutex_lock(&monitor->scheduler_mutex);
-	pthread_cond_signal(&monitor->scheduler_cond);
-	pthread_mutex_unlock(&monitor->scheduler_mutex);
 }

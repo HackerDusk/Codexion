@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/06 02:48:28 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/08 13:42:55 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/09 14:17:52 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,7 @@ static void	in_middle_of_compilation(t_coder *coder, long long *debug_timestamp)
 	long long		target;
 
 	pthread_mutex_lock(&coder->monitor->monitor_mutex);
-	pthread_mutex_lock(&coder->monitor->scheduler_mutex);
 	coder->last_compile_start = get_time_ms();
-	pthread_mutex_unlock(&coder->monitor->scheduler_mutex);
 	target = coder->last_compile_start + coder->time_to_compile;
 	while (get_time_ms() < target && !is_simulation_stopped(coder->monitor))
 	{

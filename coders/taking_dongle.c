@@ -6,7 +6,7 @@
 /*   By: srandro <srandro@student.42antananarivo    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/07 11:06:29 by srandro           #+#    #+#             */
-/*   Updated: 2026/09/08 13:45:10 by srandro          ###   ########.fr       */
+/*   Updated: 2026/09/09 13:29:20 by srandro          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,14 @@ int	taking_first_dongle(t_coder *coder)
 {
 	if (is_simulation_stopped(coder->monitor))
 		return (0);
+	coder->first->is_free = 0;
+	heap_pop(coder->first->heap);
 	pthread_mutex_lock(&coder->monitor->print_mutex);
 	if (is_simulation_stopped(coder->monitor))
 	{
 		pthread_mutex_unlock(&coder->monitor->print_mutex);
 		return (0);
 	}
-	coder->first->is_free = 0;
 	fprintf(stdout, "%lld %d has taken a dongle\n",
 		get_time_ms() - coder->monitor->start_time, coder->id);
 	pthread_mutex_unlock(&coder->monitor->print_mutex);
@@ -33,7 +34,6 @@ int	taking_second_dongle(t_coder *coder)
 {
 	if (is_simulation_stopped(coder->monitor))
 	{
-		pthread_mutex_unlock(&coder->second->dongle_mutex);
 		pthread_mutex_lock(&coder->first->dongle_mutex);
 		coder->first->available_at = (get_time_ms()
 				+ coder->first->dongle_cooldown);
@@ -42,13 +42,14 @@ int	taking_second_dongle(t_coder *coder)
 		pthread_mutex_unlock(&coder->first->dongle_mutex);
 		return (0);
 	}
+	coder->second->is_free = 0;
+	heap_pop(coder->second->heap);
 	pthread_mutex_lock(&coder->monitor->print_mutex);
 	if (is_simulation_stopped(coder->monitor))
 	{
 		pthread_mutex_unlock(&coder->monitor->print_mutex);
 		return (0);
 	}
-	coder->second->is_free = 0;
 	fprintf(stdout, "%lld %d has taken a dongle\n",
 		get_time_ms() - coder->monitor->start_time, coder->id);
 	pthread_mutex_unlock(&coder->monitor->print_mutex);
